@@ -49,5 +49,12 @@
 			#interrupt-cells = <4>;
 			status = "okay";
 		};
+
+		uart0: apbuart@d706000 {
+			compatible = "gaisler,apbuart";
+			reg = <0xd706000 0x1000>;
+			current-speed = <115200>;
+			status = "disabled";
+		};
 	};
 };

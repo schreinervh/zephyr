@@ -14,5 +14,10 @@
 
 	chosen {
 		zephyr,sram = &eram0;
+		zephyr,console = &uart0;
 	};
+};
+
+&uart0 {
+	status = "okay";
 };

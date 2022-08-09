@@ -9,3 +9,8 @@ config UART_APBUART
 	select SERIAL_SUPPORT_INTERRUPT
 	help
 	  This option enables the APBUART driver for LEON processors.
+
+config UART_APBUART_NGULTRA
+	bool "Custom config for NG-Ultra"
+	default n
+	depends on UART_APBUART
