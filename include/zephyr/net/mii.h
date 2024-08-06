@@ -15,6 +15,8 @@
 /**
  * @brief Ethernet MII (media independent interface) functions
  * @defgroup ethernet_mii Ethernet MII Support Functions
+ * @since 1.7
+ * @version 0.8.0
  * @ingroup ethernet
  * @{
  */
@@ -131,8 +133,9 @@
 #define MII_ADVERTISE_10_FULL      (1 << 6)
 /** try for 10 Mb/s half duplex support */
 #define MII_ADVERTISE_10_HALF      (1 << 5)
-/** Selector Field */
+/** Selector Field Mask */
 #define MII_ADVERTISE_SEL_MASK     (0x1F << 0)
+/** Selector Field */
 #define MII_ADVERTISE_SEL_IEEE_802_3   0x01
 
 /* 1000BASE-T Control Register bit definitions */
@@ -141,6 +144,7 @@
 /** try for 1000BASE-T half duplex support */
 #define MII_ADVERTISE_1000_HALF    (1 << 8)
 
+/** Advertise all speeds */
 #define MII_ADVERTISE_ALL (MII_ADVERTISE_10_HALF | MII_ADVERTISE_10_FULL |\
 			   MII_ADVERTISE_100_HALF | MII_ADVERTISE_100_FULL |\
 			   MII_ADVERTISE_SEL_IEEE_802_3)

@@ -13,6 +13,8 @@
 
 #if !defined(_ASMLANGUAGE)
 
+#include <zephyr/linker/sections.h>
+
 #define __noinit		__in_section_unique(_NOINIT_SECTION_NAME)
 #define __noinit_named(name)	__in_section_unique_named(_NOINIT_SECTION_NAME, name)
 #define __irq_vector_table	Z_GENERIC_SECTION(_IRQ_VECTOR_TABLE_SECTION_NAME)
@@ -49,8 +51,10 @@
 
 #if defined(CONFIG_NOCACHE_MEMORY)
 #define __nocache __in_section_unique(_NOCACHE_SECTION_NAME)
+#define __nocache_noinit __nocache
 #else
 #define __nocache
+#define __nocache_noinit __noinit
 #endif /* CONFIG_NOCACHE_MEMORY */
 
 #if defined(CONFIG_KERNEL_COHERENCE)
@@ -100,6 +104,12 @@
 #else
 #define __isr
 #endif
+
+/* Symbol table section */
+#if defined(CONFIG_SYMTAB)
+#define __symtab_info		Z_GENERIC_SECTION(_SYMTAB_INFO_SECTION_NAME)
+#define __symtab_entry		Z_GENERIC_SECTION(_SYMTAB_ENTRY_SECTION_NAME)
+#endif /* CONFIG_SYMTAB */
 
 #endif /* !_ASMLANGUAGE */
 

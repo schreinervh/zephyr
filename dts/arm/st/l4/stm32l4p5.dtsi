@@ -291,13 +291,13 @@
 			interrupt-names = "TX", "RX0", "RX1", "SCE";
 			clocks = <&rcc STM32_CLOCK_BUS_APB1 0x02000000>; //RCC_APB1ENR1_CAN1EN
 			status = "disabled";
-			sample-point = <875>;
 		};
 
 		aes: aes@50060000 {
 			compatible = "st,stm32-aes";
 			reg = <0x50060000 0x400>;
 			clocks = <&rcc STM32_CLOCK_BUS_AHB2 0x00010000>;
+			resets = <&rctl STM32_RESET(AHB2, 16U)>;
 			interrupts = <79 0>;
 			interrupt-names = "aes";
 			status = "disabled";
@@ -397,5 +397,21 @@
 	otgfs_phy: otgfs_phy {
 		compatible = "usb-nop-xceiv";
 		#phy-cells = <0>;
+	};
+
+	smbus2: smbus2 {
+		compatible = "st,stm32-smbus";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		i2c = <&i2c2>;
+		status = "disabled";
+	};
+
+	smbus4: smbus4 {
+		compatible = "st,stm32-smbus";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		i2c = <&i2c4>;
+		status = "disabled";
 	};
 };

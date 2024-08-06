@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -7,6 +7,7 @@
 #include <mem.h>
 #include <arm/armv8-r.dtsi>
 #include <zephyr/dt-bindings/interrupt-controller/arm-gic.h>
+#include <zephyr/dt-bindings/clock/nxp_s32z2_clock.h>
 
 / {
 	cpus {
@@ -216,8 +217,7 @@
 
 			eirq0: eirq0@40520010 {
 				compatible = "nxp,s32-siul2-eirq";
-				reg = <0x40520010 0x04>, <0x40520018 0x04>;
-				reg-names = "disr0", "direr0";
+				reg = <0x40520010 0xb4>;
 				interrupts = <GIC_SPI 514 IRQ_TYPE_LEVEL IRQ_DEFAULT_PRIORITY>;
 				interrupt-controller;
 				#interrupt-cells = <2>;
@@ -268,8 +268,7 @@
 
 			eirq1: eirq1@40d20010 {
 				compatible = "nxp,s32-siul2-eirq";
-				reg = <0x40d20010 0x04>, <0x40d20018 0x04>;
-				reg-names = "disr0", "direr0";
+				reg = <0x40d20010 0xb4>;
 				interrupts = <GIC_SPI 515 IRQ_TYPE_LEVEL IRQ_DEFAULT_PRIORITY>;
 				interrupt-controller;
 				#interrupt-cells = <2>;
@@ -344,8 +343,7 @@
 
 			eirq4: eirq4@42520010 {
 				compatible = "nxp,s32-siul2-eirq";
-				reg = <0x42520010 0x04>, <0x42520018 0x04>;
-				reg-names = "disr0", "direr0";
+				reg = <0x42520010 0xb4>;
 				interrupts = <GIC_SPI 516 IRQ_TYPE_LEVEL IRQ_DEFAULT_PRIORITY>;
 				interrupt-controller;
 				#interrupt-cells = <2>;
@@ -403,7 +401,6 @@
 			gpiol: gpio@42521710 {
 				compatible = "nxp,s32-gpio";
 				reg = <0x42521710 0x02>, <0x42520480 0x40>;
-				reg-names = "disr0", "direr0";
 				reg-names = "pgpdo", "mscr";
 				gpio-controller;
 				#gpio-cells = <2>;
@@ -419,8 +416,7 @@
 
 			eirq5: eirq5@42d20010 {
 				compatible = "nxp,s32-siul2-eirq";
-				reg = <0x42d20010 0x04>, <0x42d20018 0x04>;
-				reg-names = "disr0", "direr0";
+				reg = <0x42d20010 0xb4>;
 				interrupts = <GIC_SPI 517 IRQ_TYPE_LEVEL IRQ_DEFAULT_PRIORITY>;
 				interrupt-controller;
 				#interrupt-cells = <2>;
@@ -692,27 +688,29 @@
 
 		can0: can@4741b000 {
 			compatible = "nxp,s32-canxl";
-			reg = <0x4741b000 0x4000>,
-				<0x47426000 0x4000>,
-				<0x47424000 0x4000>;
-			reg-names = "sic", "grp_ctrl", "dsc_ctrl";
+			reg = <0x4741b000 0x1000>,
+				<0x47423000 0x1000>,
+				<0x47425000 0x1000>,
+				<0x47427000 0x1000>;
+			reg-names = "sic", "rx_fifo", "rx_fifo_ctrl", "mru";
 			status = "disabled";
 			interrupts = <GIC_SPI 224 IRQ_TYPE_LEVEL IRQ_DEFAULT_PRIORITY>,
-					<GIC_SPI 225 IRQ_TYPE_LEVEL IRQ_DEFAULT_PRIORITY>;
-			interrupt-names = "RX_TX_DATA_IRQ", "INT_ERROR_IRQ";
+					<GIC_SPI 225 IRQ_TYPE_LEVEL 0xb0>;
+			interrupt-names = "rx_tx_mru", "error";
 			clocks = <&clock NXP_S32_P5_CANXL_PE_CLK>;
 		};
 
 		can1: can@4751b000 {
 			compatible = "nxp,s32-canxl";
-			reg = <0x4751b000 0x4000>,
-				<0x47526000 0x4000>,
-				<0x47524000 0x4000>;
-			reg-names = "sic", "grp_ctrl", "dsc_ctrl";
+			reg = <0x4751b000 0x1000>,
+				<0x47523000 0x1000>,
+				<0x47525000 0x1000>,
+				<0x47527000 0x1000>;
+			reg-names = "sic", "rx_fifo", "rx_fifo_ctrl", "mru";
 			status = "disabled";
 			interrupts = <GIC_SPI 226 IRQ_TYPE_LEVEL IRQ_DEFAULT_PRIORITY>,
-					<GIC_SPI 227 IRQ_TYPE_LEVEL IRQ_DEFAULT_PRIORITY>;
-			interrupt-names = "RX_TX_DATA_IRQ", "INT_ERROR_IRQ";
+					<GIC_SPI 227 IRQ_TYPE_LEVEL 0xb0>;
+			interrupt-names = "rx_tx_mru", "error";
 			clocks = <&clock NXP_S32_P5_CANXL_PE_CLK>;
 		};
 	};

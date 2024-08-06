@@ -448,6 +448,8 @@ static void usbfsotg_event_submit(const struct device *dev,
 	ret = k_mem_slab_alloc(&usbfsotg_ee_slab, (void **)&ev, K_NO_WAIT);
 	if (ret) {
 		udc_submit_event(dev, UDC_EVT_ERROR, ret);
+		LOG_ERR("Failed to allocate slab");
+		return;
 	}
 
 	ev->dev = dev;
@@ -649,6 +651,10 @@ static void usbfsotg_isr_handler(const struct device *dev)
 		udc_submit_event(dev, UDC_EVT_RESET, 0);
 	}
 
+	if (istatus == USB_ISTAT_SOFTOK_MASK) {
+		udc_submit_event(dev, UDC_EVT_SOF, 0);
+	}
+
 	if (istatus == USB_ISTAT_ERROR_MASK) {
 		LOG_DBG("ERROR IRQ 0x%02x", base->ERRSTAT);
 		udc_submit_event(dev, UDC_EVT_ERROR, base->ERRSTAT);
@@ -821,7 +827,8 @@ static int usbfsotg_ep_clear_halt(const struct device *dev,
 	if (USB_EP_GET_IDX(cfg->addr) == 0U) {
 		usbfsotg_resume_tx(dev);
 	} else {
-		/* TODO: trigger queued transfers? */
+		/* trigger queued transfers */
+		usbfsotg_event_submit(dev, cfg->addr, USBFSOTG_EVT_XFER);
 	}
 
 	return 0;

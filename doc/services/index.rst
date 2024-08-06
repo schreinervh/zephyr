@@ -8,6 +8,7 @@ OS Services
 
 
    binary_descriptors/index.rst
+   console.rst
    crypto/index
    debugging/index.rst
    device_mgmt/index
@@ -22,11 +23,13 @@ OS Services
    resource_management/index.rst
    mem_mgmt/index.rst
    modbus/index.rst
+   modem/index.rst
    notify.rst
    pm/index.rst
    portability/index.rst
    poweroff.rst
    shell/index.rst
+   serialization/index.rst
    settings/index.rst
    smf/index.rst
    storage/index.rst

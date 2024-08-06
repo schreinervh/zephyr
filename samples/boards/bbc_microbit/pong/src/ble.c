@@ -30,9 +30,9 @@
 #define PONG_CHR_UUID \
 	BT_UUID_128_ENCODE(0xabbf8f1c, 0xc56a, 0x82b5, 0xc640, 0x2ccdd7af94dd)
 
-static struct bt_uuid_128 pong_svc_uuid = BT_UUID_INIT_128(PONG_SVC_UUID);
-static struct bt_uuid_128 pong_chr_uuid = BT_UUID_INIT_128(PONG_CHR_UUID);
-static struct bt_uuid *gatt_ccc_uuid = BT_UUID_GATT_CCC;
+static const struct bt_uuid_128 pong_svc_uuid = BT_UUID_INIT_128(PONG_SVC_UUID);
+static const struct bt_uuid_128 pong_chr_uuid = BT_UUID_INIT_128(PONG_CHR_UUID);
+static const struct bt_uuid *gatt_ccc_uuid = BT_UUID_GATT_CCC;
 
 static struct bt_gatt_discover_params discov_param;
 static struct bt_gatt_subscribe_params subscribe_param;
@@ -40,6 +40,10 @@ static struct bt_gatt_subscribe_params subscribe_param;
 static const struct bt_data ad[] = {
 	BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
 	BT_DATA_BYTES(BT_DATA_UUID128_ALL, PONG_SVC_UUID),
+};
+
+static const struct bt_data sd[] = {
+	BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME, sizeof(CONFIG_BT_DEVICE_NAME) - 1),
 };
 
 static struct bt_conn *default_conn;
@@ -231,7 +235,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
 	struct bt_conn_info info;
 
 	if (err) {
-		printk("Connection failed (err 0x%02x)\n", err);
+		printk("Connection failed, err 0x%02x %s\n", err, bt_hci_err_to_str(err));
 		return;
 	}
 
@@ -256,7 +260,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
 
 static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
-	printk("Disconnected (reason 0x%02x)\n", reason);
+	printk("Disconnected, reason 0x%02x %s\n", reason, bt_hci_err_to_str(reason));
 
 	if (default_conn) {
 		bt_conn_unref(default_conn);
@@ -467,8 +471,8 @@ static void ble_timeout(struct k_work *work)
 		k_work_reschedule(&ble_work, K_NO_WAIT);
 		break;
 	case BLE_ADV_START:
-		err = bt_le_adv_start(BT_LE_ADV_CONN_NAME, ad, ARRAY_SIZE(ad),
-				      NULL, 0);
+		err = bt_le_adv_start(BT_LE_ADV_CONN_ONE_TIME, ad, ARRAY_SIZE(ad), sd,
+				      ARRAY_SIZE(sd));
 		if (err) {
 			printk("Advertising failed to start (err %d)\n", err);
 			return;

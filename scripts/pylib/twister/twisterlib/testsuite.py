@@ -82,10 +82,10 @@ def scan_file(inf_name):
         re.MULTILINE)
     # Checks if the file contains a definition of "void test_main(void)"
     # Since ztest provides a plain test_main implementation it is OK to:
-    # 1. register test suites and not call the run function iff the test
-    #    doesn't have a custom test_main.
-    # 2. register test suites and a custom test_main definition iff the test
-    #    also calls ztest_run_registered_test_suites.
+    # 1. register test suites and not call the run function if and only if
+    #    the test doesn't have a custom test_main.
+    # 2. register test suites and a custom test_main definition if and only if
+    #    the test also calls ztest_run_registered_test_suites.
     test_main_regex = re.compile(
         br"^\s*void\s+test_main\(void\)",
         re.MULTILINE)
@@ -310,7 +310,13 @@ def scan_testsuite_path(testsuite_path):
         except ValueError as e:
             logger.error("%s: error parsing source file: %s" % (filename, e))
 
+    src_dir_pathlib_path = Path(src_dir_path)
     for filename in find_c_files_in(testsuite_path):
+        # If we have already scanned those files in the src_dir step, skip them.
+        filename_path = Path(filename)
+        if src_dir_pathlib_path in filename_path.parents:
+            continue
+
         try:
             result: ScanPathResult = scan_file(filename)
             if result.warnings:
@@ -401,6 +407,7 @@ class TestSuite(DisablePyTestCollectionMixin):
         self.source_dir_rel = os.path.relpath(os.path.realpath(suite_path), start=canonical_zephyr_base)
         self.yamlfile = suite_path
         self.testcases = []
+        self.integration_platforms = []
 
         self.ztest_suite_names = []
 
@@ -416,21 +423,22 @@ class TestSuite(DisablePyTestCollectionMixin):
         if self.harness == 'console' and not self.harness_config:
             raise Exception('Harness config error: console harness defined without a configuration.')
 
-    def add_subcases(self, data, parsed_subcases, suite_names):
+    def add_subcases(self, data, parsed_subcases=None, suite_names=None):
         testcases = data.get("testcases", [])
         if testcases:
             for tc in testcases:
                 self.add_testcase(name=f"{self.id}.{tc}")
         else:
-            # only add each testcase once
-            for sub in set(parsed_subcases):
-                name = "{}.{}".format(self.id, sub)
-                self.add_testcase(name)
-
             if not parsed_subcases:
                 self.add_testcase(self.id, freeform=True)
+            else:
+                # only add each testcase once
+                for sub in set(parsed_subcases):
+                    name = "{}.{}".format(self.id, sub)
+                    self.add_testcase(name)
 
-        self.ztest_suite_names = suite_names
+        if suite_names:
+            self.ztest_suite_names = suite_names
 
     def add_testcase(self, name, freeform=False):
         tc = TestCase(name=name, testsuite=self)
@@ -450,7 +458,7 @@ class TestSuite(DisablePyTestCollectionMixin):
             relative_ts_root = ""
 
         # workdir can be "."
-        unique = os.path.normpath(os.path.join(relative_ts_root, workdir, name))
+        unique = os.path.normpath(os.path.join(relative_ts_root, workdir, name)).replace(os.sep, '/')
         return unique
 
     @staticmethod
